@@ -109,25 +109,42 @@ If you encounter build errors:
 ```
 PasswordManager/
 ├── App/
-│   └── PasswordManagerApp.swift       # App entry point
+│   ├── PasswordManagerApp.swift       # App entry point
+│   └── DependencyContainer.swift      # Dependency injection container
 ├── Models/
 │   └── PasswordManager.xcdatamodeld/  # Core Data model
 ├── Views/
-│   ├── ContentView.swift              # Main password list
+│   ├── RootView.swift                 # Root view with MVVM
 │   ├── AddPasswordView.swift          # Add password form
 │   ├── PasswordDetailView.swift       # View/Edit details
-│   └── PasswordStrengthIndicator.swift # Strength indicator UI
+│   ├── PasswordStrengthIndicator.swift # Strength indicator UI
+│   └── Components/
+│       ├── AddPassword/               # Add password components
+│       │   ├── AccountInfoSection.swift
+│       │   ├── CircleIconHeader.swift
+│       │   ├── CustomSecureField.swift
+│       │   └── CustomTextField.swift
+│       └── PasswordDetail/            # Detail view components
+│           ├── EditModeButtons.swift
+│           ├── InfoRow.swift
+│           ├── PasswordCardView.swift
+│           ├── PasswordDisplayRow.swift
+│           └── PasswordSection.swift
 ├── ViewModels/
-│   ├── PasswordListViewModel.swift
-│   ├── AddPasswordViewModel.swift
-│   └── PasswordDetailViewModel.swift
+│   ├── PasswordListViewModel.swift    # Password list logic
+│   ├── AddPasswordViewModel.swift     # Add password logic
+│   └── PasswordDetailViewModel.swift  # Detail view logic
 ├── Services/
-│   ├── EncryptionService.swift        # AES-GCM encryption
-│   ├── KeychainService.swift          # Keychain management
-│   └── PasswordStrengthCalculator.swift
-└── Persistence/
-    ├── Persistence.swift              # Core Data stack
-    └── PasswordRepository.swift       # Data access layer
+│   ├── EncryptionService/
+│   │   ├── EncryptionService.swift    # AES-GCM encryption
+│   │   └── PasswordStrengthCalculator.swift
+│   ├── KeychainService/
+│   │   └── KeychainService.swift      # Keychain management
+│   └── Persistence/
+│       ├── Persistence.swift          # Core Data stack
+│       └── PasswordRepository.swift   # Data access layer
+└── Helpers/
+    └── PasswordStrength.swift         # Password strength enum
 ```
 
 ## Security Architecture
