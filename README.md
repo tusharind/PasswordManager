@@ -30,7 +30,6 @@ A secure, elegant iOS password manager app built with SwiftUI and CoreData. Stor
 
 - **Xcode**: 14.0 or later
 - **iOS**: 15.0 or later
-- **macOS**: Monterey (12.0) or later for development
 
 ## Getting Started
 
