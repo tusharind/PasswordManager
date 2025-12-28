@@ -4,26 +4,17 @@ import SwiftUI
 
 struct AddPasswordView: View {
     @Environment(\.presentationMode) var presentationMode
-    @Environment(\.managedObjectContext) private var viewContext
-
-    @State private var accountType: String = ""
-    @State private var username: String = ""
-    @State private var passwordInput: String = ""
-    @State private var errorMessage: String?
-
-    private let encryptionService: EncryptionService
+    @EnvironmentObject private var container: DependencyContainer
+    @StateObject private var viewModel: AddPasswordViewModel
 
     init() {
-
-        do {
-            let keychainService = KeychainService()
-            let key = try keychainService.getOrCreateKey()
-            self.encryptionService = EncryptionService(secretKey: key)
-        } catch {
-            fatalError(
-                "Failed to initialize security services: \(error.localizedDescription)"
+        let container = DependencyContainer.shared
+        _viewModel = StateObject(
+            wrappedValue: AddPasswordViewModel(
+                repository: container.passwordRepository,
+                encryptionService: container.encryptionService
             )
-        }
+        )
     }
 
     var body: some View {
@@ -65,13 +56,13 @@ struct AddPasswordView: View {
                             CustomTextField(
                                 icon: "building.2",
                                 placeholder: "Account Type (e.g., Gmail)",
-                                text: $accountType
+                                text: $viewModel.accountType
                             )
 
                             CustomTextField(
                                 icon: "person",
                                 placeholder: "Username / Email",
-                                text: $username
+                                text: $viewModel.username
                             )
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -79,10 +70,10 @@ struct AddPasswordView: View {
                             CustomSecureField(
                                 icon: "key",
                                 placeholder: "Password",
-                                text: $passwordInput
+                                text: $viewModel.passwordInput
                             )
 
-                            if !passwordInput.isEmpty {
+                            if !viewModel.passwordInput.isEmpty {
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text("Password Strength")
                                         .font(.caption)
@@ -91,7 +82,7 @@ struct AddPasswordView: View {
                                     PasswordStrengthIndicator(
                                         strength:
                                             PasswordStrengthCalculator.calculate(
-                                                passwordInput
+                                                viewModel.passwordInput
                                             )
                                     )
                                 }
@@ -100,14 +91,19 @@ struct AddPasswordView: View {
                             }
                         }
 
-                        if let errorMessage = errorMessage {
+                        if let errorMessage = viewModel.errorMessage {
                             Text(errorMessage)
                                 .font(.caption)
                                 .foregroundColor(.red)
                                 .padding(.horizontal)
                         }
 
-                        Button(action: savePassword) {
+                        Button(action: {
+                            viewModel.savePassword()
+                            if viewModel.isSaved {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        }) {
                             Text("Save Password")
                                 .font(.headline)
                                 .foregroundColor(.white)
@@ -115,7 +111,7 @@ struct AddPasswordView: View {
                                 .padding()
                                 .background(
                                     LinearGradient(
-                                        colors: isFormValid
+                                        colors: viewModel.isFormValid
                                             ? [.blue, .purple]
                                             : [.gray, .gray],
                                         startPoint: .leading,
@@ -124,14 +120,14 @@ struct AddPasswordView: View {
                                 )
                                 .cornerRadius(12)
                                 .shadow(
-                                    color: isFormValid
+                                    color: viewModel.isFormValid
                                         ? .blue.opacity(0.4) : .clear,
                                     radius: 8,
                                     x: 0,
                                     y: 4
                                 )
                         }
-                        .disabled(!isFormValid)
+                        .disabled(!viewModel.isFormValid)
                         .padding(.horizontal)
                         .padding(.top, 8)
                     }
@@ -149,79 +145,5 @@ struct AddPasswordView: View {
                 }
             }
         }
-    }
-
-    private var isFormValid: Bool {
-        !accountType.isEmpty && !username.isEmpty && !passwordInput.isEmpty
-    }
-
-    private func savePassword() {
-        guard !accountType.isEmpty, !username.isEmpty, !passwordInput.isEmpty
-        else {
-            errorMessage = "All fields are required."
-            return
-        }
-
-        do {
-            let encryptedData = try encryptionService.encrypt(
-                password: passwordInput
-            )
-
-            let newPassword = PasswordItem(context: viewContext)
-            newPassword.id = UUID()
-            newPassword.accountType = accountType
-            newPassword.username = username
-            newPassword.encryptedPassword = encryptedData
-            newPassword.createdAt = Date()
-
-            try viewContext.save()
-
-            presentationMode.wrappedValue.dismiss()
-        } catch {
-            errorMessage =
-                "Failed to save password: \(error.localizedDescription)"
-        }
-    }
-}
-
-struct CustomTextField: View {
-    let icon: String
-    let placeholder: String
-    @Binding var text: String
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .foregroundColor(.secondary)
-                .frame(width: 20)
-
-            TextField(placeholder, text: $text)
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
-        .padding(.horizontal)
-    }
-}
-
-struct CustomSecureField: View {
-    let icon: String
-    let placeholder: String
-    @Binding var text: String
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .foregroundColor(.secondary)
-                .frame(width: 20)
-
-            SecureField(placeholder, text: $text)
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
-        .padding(.horizontal)
     }
 }

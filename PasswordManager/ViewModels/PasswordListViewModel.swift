@@ -11,8 +11,8 @@ class PasswordListViewModel: ObservableObject {
 
     private let repository: PasswordRepository
 
-    init() {
-        self.repository = PasswordRepository()
+    init(repository: PasswordRepository) {
+        self.repository = repository
         fetchPasswords()
     }
 

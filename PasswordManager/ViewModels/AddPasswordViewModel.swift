@@ -14,18 +14,13 @@ class AddPasswordViewModel: ObservableObject {
     private let repository: PasswordRepository
     private let encryptionService: EncryptionService
 
-    init() {
-        self.repository = PasswordRepository()
+    var isFormValid: Bool {
+        !accountType.isEmpty && !username.isEmpty && !passwordInput.isEmpty
+    }
 
-        do {
-            let keychainService = KeychainService()
-            let key = try keychainService.getOrCreateKey()
-            self.encryptionService = EncryptionService(secretKey: key)
-        } catch {
-            fatalError(
-                "Failed to initialize security services: \(error.localizedDescription)"
-            )
-        }
+    init(repository: PasswordRepository, encryptionService: EncryptionService) {
+        self.repository = repository
+        self.encryptionService = encryptionService
     }
 
     func savePassword() {

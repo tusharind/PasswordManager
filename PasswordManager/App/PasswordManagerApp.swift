@@ -7,7 +7,7 @@ struct PasswordManagerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
                 .environmentObject(container)
                 .environment(
                     \.managedObjectContext,

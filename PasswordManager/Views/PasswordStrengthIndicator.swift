@@ -16,7 +16,7 @@ struct PasswordStrengthIndicator: View {
             Text(strength.rawValue)
                 .font(.caption)
                 .fontWeight(.semibold)
-                .foregroundColor(strengthColor)
+                .foregroundColor(strength.color)
                 .padding(.leading, 8)
         }
     }
@@ -24,19 +24,11 @@ struct PasswordStrengthIndicator: View {
     private func barColor(for index: Int) -> Color {
         switch strength {
         case .weak:
-            return index == 0 ? .red : .gray.opacity(0.3)
+            return index == 0 ? strength.color : .gray.opacity(0.3)
         case .medium:
-            return index <= 1 ? .orange : .gray.opacity(0.3)
+            return index <= 1 ? strength.color : .gray.opacity(0.3)
         case .strong:
-            return .green
-        }
-    }
-
-    private var strengthColor: Color {
-        switch strength {
-        case .weak: return .red
-        case .medium: return .orange
-        case .strong: return .green
+            return strength.color
         }
     }
 }

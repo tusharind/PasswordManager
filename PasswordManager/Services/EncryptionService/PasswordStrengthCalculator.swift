@@ -1,18 +1,5 @@
 import Foundation
-
-enum PasswordStrength: String {
-    case weak = "Weak"
-    case medium = "Medium"
-    case strong = "Strong"
-
-    var color: String {
-        switch self {
-        case .weak: return "red"
-        case .medium: return "orange"
-        case .strong: return "green"
-        }
-    }
-}
+import SwiftUI
 
 struct PasswordStrengthCalculator {
 
